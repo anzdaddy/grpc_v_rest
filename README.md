@@ -19,7 +19,7 @@ go build
 Shell 2:
 
 ```
-GRPC_REMOTE_ADDR=localhost:4443 REST_REMOTE_ADDR=localhost:4444 -bench Remote
+GRPC_REMOTE_ADDR=localhost:4443 REST_REMOTE_ADDR=localhost:4444 go test -bench Remote
 ```
 
 ### Remote test
@@ -35,7 +35,7 @@ go build
 Machine 2:
 
 ```
-GRPC_REMOTE_ADDR=<<machine1-ip>>:4443 REST_REMOTE_ADDR=<<machine1-ip>>:4444 -bench Remote -benchtime 10s
+GRPC_REMOTE_ADDR=<<machine1-ip>>:4443 REST_REMOTE_ADDR=<<machine1-ip>>:4444 go test -bench Remote -benchtime 10s
 ```
 
 ## Results
