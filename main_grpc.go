@@ -53,7 +53,7 @@ func (s *server) SetInfo(ctx context.Context, in *InfoRequest) (*InfoReply, erro
 }
 
 // SetInfos implements the streaming model
-func (s *server) SetInfos(server InfoServer_SetInfosServer) error {
+func (s *server) SetInfoStream(server InfoServer_SetInfoStreamServer) error {
 	for {
 		in, err := server.Recv()
 		if err != nil {

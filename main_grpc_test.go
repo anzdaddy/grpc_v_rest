@@ -74,7 +74,7 @@ func BenchmarkGRPCSetInfoRemote16x(b *testing.B) {
 	benchmarkGRPCSetInfo(b, remoteAddr, 16)
 }
 
-func benchmarkGRPCSetInfos(b *testing.B, addr string, parallelism int) {
+func benchmarkGRPCSetInfoStream(b *testing.B, addr string, parallelism int) {
 	config := &tls.Config{}
 	config.InsecureSkipVerify = true
 	// Set up a connection to the server.
@@ -92,7 +92,7 @@ func benchmarkGRPCSetInfos(b *testing.B, addr string, parallelism int) {
 	ctx := context.Background()
 	for j := 0; j < parallelism; j++ {
 		go func(j int) {
-			call, err := client.SetInfos(ctx)
+			call, err := client.SetInfoStream(ctx)
 			if err != nil {
 				b.Fatal(err)
 			}
@@ -136,26 +136,26 @@ func benchmarkGRPCSetInfos(b *testing.B, addr string, parallelism int) {
 	b.StopTimer()
 }
 
-func BenchmarkGRPCSetInfosLoopback(b *testing.B) {
+func BenchmarkGRPCSetInfoStreamLoopback(b *testing.B) {
 	loopbackAddr := "localhost:4443"
 	s := mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"})
-	benchmarkGRPCSetInfos(b, loopbackAddr, 1)
+	benchmarkGRPCSetInfoStream(b, loopbackAddr, 1)
 	s.Stop()
 }
 
-func BenchmarkGRPCSetInfosLoopback16x(b *testing.B) {
+func BenchmarkGRPCSetInfoStreamLoopback16x(b *testing.B) {
 	loopbackAddr := "localhost:4443"
 	s := mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"})
-	benchmarkGRPCSetInfos(b, loopbackAddr, 16)
+	benchmarkGRPCSetInfoStream(b, loopbackAddr, 16)
 	s.Stop()
 }
 
-func BenchmarkGRPCSetInfosRemote(b *testing.B) {
+func BenchmarkGRPCSetInfoStreamRemote(b *testing.B) {
 	remoteAddr := os.Getenv("GRPC_REMOTE_ADDR")
-	benchmarkGRPCSetInfos(b, remoteAddr, 1)
+	benchmarkGRPCSetInfoStream(b, remoteAddr, 1)
 }
 
-func BenchmarkGRPCSetInfosRemote16x(b *testing.B) {
+func BenchmarkGRPCSetInfoStreamRemote16x(b *testing.B) {
 	remoteAddr := os.Getenv("GRPC_REMOTE_ADDR")
-	benchmarkGRPCSetInfos(b, remoteAddr, 16)
+	benchmarkGRPCSetInfoStream(b, remoteAddr, 16)
 }

@@ -6,7 +6,7 @@ package main;
 service InfoServer {
   // Sends a greeting
   rpc SetInfo (InfoRequest) returns (InfoReply) {}
-  rpc SetInfos (stream InfoRequest) returns (stream InfoReply) {}
+  rpc SetInfoStream (stream InfoRequest) returns (stream InfoReply) {}
 }
 
 // The request message containing the user's name.
