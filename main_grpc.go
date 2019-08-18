@@ -3,25 +3,27 @@ package main
 import (
 	"crypto/tls"
 	"errors"
-	"log"
+	"io"
 	"net"
 
+	"github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-
-	"golang.org/x/net/context"
 )
+
+//go:generate protoc --go_out=plugins=grpc:. info.proto
 
 func mainGRPC(addr string, creds tlsCreds) *grpc.Server {
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		logrus.Fatalf("failed to listen: %v", err)
 	}
 
 	config := &tls.Config{}
 	cert, err := tls.LoadX509KeyPair(creds.certFile, creds.keyFile)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 	config.Certificates = []tls.Certificate{cert}
 	s := grpc.NewServer(grpc.Creds(credentials.NewTLS(config)))
@@ -29,7 +31,7 @@ func mainGRPC(addr string, creds tlsCreds) *grpc.Server {
 	RegisterInfoServerServer(s, &server{})
 	go func() {
 		if err := s.Serve(lis); err != nil {
-			log.Fatal(err)
+			logrus.Fatal(err)
 		}
 	}()
 	return s
@@ -48,6 +50,36 @@ func (s *server) SetInfo(ctx context.Context, in *InfoRequest) (*InfoReply, erro
 	return &InfoReply{
 		Success: true,
 	}, nil
+}
+
+// SetInfos implements the streaming model
+func (s *server) SetInfos(server InfoServer_SetInfosServer) error {
+	for {
+		in, err := server.Recv()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			logrus.Error(err)
+			return err
+		}
+		if err := validate(in); err != nil {
+			if err := server.Send(&InfoReply{
+				Success: false,
+				Reason:  err.Error(),
+			}); err != nil {
+				logrus.Error(err)
+				return err
+			}
+			continue
+		}
+		if err := server.Send(&InfoReply{
+			Success: true,
+		}); err != nil {
+			logrus.Error(err)
+			return err
+		}
+	}
 }
 
 // Validate - implement validatable
