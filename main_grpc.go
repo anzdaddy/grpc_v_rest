@@ -12,14 +12,14 @@ import (
 	"golang.org/x/net/context"
 )
 
-func mainGRPC(addr string) {
+func mainGRPC(addr string, creds tlsCreds) *grpc.Server {
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
 	config := &tls.Config{}
-	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	cert, err := tls.LoadX509KeyPair(creds.certFile, creds.keyFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,8 +27,12 @@ func mainGRPC(addr string) {
 	s := grpc.NewServer(grpc.Creds(credentials.NewTLS(config)))
 
 	RegisterInfoServerServer(s, &server{})
-	s.Serve(lis)
-
+	go func() {
+		if err := s.Serve(lis); err != nil {
+			log.Fatal(err)
+		}
+	}()
+	return s
 }
 
 type server struct{}

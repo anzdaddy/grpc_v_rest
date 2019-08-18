@@ -3,18 +3,23 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/husobee/vestigo"
+	"github.com/sirupsen/logrus"
 )
 
-func mainREST(addr string) {
+func mainREST(addr string, creds tlsCreds) *http.Server {
 	r := vestigo.NewRouter()
 	r.Post("/info", SetInfo)
 
-	log.Fatal(http.ListenAndServeTLS(addr, certFile, keyFile, r))
-
+	server := &http.Server{Addr: addr, Handler: r}
+	go func() {
+		if err := server.ListenAndServeTLS(creds.certFile, creds.keyFile); err != nil {
+			// log.Fatal(err)
+		}
+	}()
+	return server
 }
 
 // SetInfo - Rest HTTP Handler
@@ -53,7 +58,7 @@ type apiResponse struct {
 
 type apiInput struct {
 	Name   string `json:"name"`
-	Age    int    `json:"int"`
+	Age    int    `json:"age"`
 	Height int    `json:"height"`
 }
 
@@ -72,5 +77,6 @@ func (ai apiInput) Validate() error {
 	if len(err) == 0 {
 		return nil
 	}
+	logrus.Infof("input: %#v", ai)
 	return err
 }

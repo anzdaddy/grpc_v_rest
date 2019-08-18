@@ -3,24 +3,34 @@ package main
 import (
 	"flag"
 	"fmt"
+
+	"github.com/sirupsen/logrus"
 )
 
+type tlsCreds struct {
+	certFile, keyFile string
+}
+
 var (
-	certFile string
-	keyFile  string
+	flagCreds tlsCreds
 )
 
 func init() {
-	flag.StringVar(&certFile, "cert", "test.crt", "TLS Cert File")
-	flag.StringVar(&keyFile, "key", "test.key", "TLS Key File")
+	flag.StringVar(&flagCreds.certFile, "cert", "test.crt", "TLS Cert File")
+	flag.StringVar(&flagCreds.keyFile, "key", "test.key", "TLS Key File")
 	flag.Parse()
 }
 
 func main() {
-	var block = make(chan struct{})
-	go mainGRPC("localhost:4443")
-	go mainREST("localhost:4444")
-	<-block
+	grpcAddr := ":4443"
+	mainGRPC(grpcAddr, flagCreds)
+	logrus.Infof("gRPC %s", grpcAddr)
+
+	restAddr := ":4444"
+	mainREST(restAddr, flagCreds)
+	logrus.Infof("REST %s", restAddr)
+
+	<-make(chan struct{})
 }
 
 // Validatable interface to describe what is validatable
