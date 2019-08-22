@@ -41,6 +41,9 @@ GRPC_REMOTE_ADDR=${SRV}:4443 REST_REMOTE_ADDR=${SRV}:4444 go test -bench Remote 
 
 ## Results
 
+The following results track three techniques — gRPC, gRPC streaming and REST. For
+each, we run the client on a single-goroutine (1x) and on 16 goroutines (16x).
+
 ### Loopback (in-process server)
 
 ```
