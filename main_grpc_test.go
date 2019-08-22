@@ -96,6 +96,85 @@ func benchmarkGRPCSetInfoStream(b *testing.B, addr string, parallelism int) {
 			if err != nil {
 				b.Fatal(err)
 			}
+			var t uint64 = 0
+			for i := j; i < b.N; i += parallelism {
+				if err := call.Send(&InfoRequest{
+					Name:   "test",
+					Age:    1,
+					Height: 1,
+				}); err != nil {
+					b.Fatal(err)
+				}
+				reply, err := call.Recv()
+				if err != nil {
+					b.Fatal(err)
+				}
+				if !reply.Success {
+					b.Fatal("call failed")
+				}
+				t++
+			}
+			atomic.AddUint64(&successes, t)
+			if err := call.CloseSend(); err != nil {
+				b.Fatal(err)
+			}
+			wg.Done()
+		}(j)
+		wg.Add(1)
+	}
+	wg.Wait()
+	if atomic.LoadUint64(&successes) != uint64(b.N) {
+		b.Fatalf("successes (%d) != b.N (%d)", successes, b.N)
+	}
+	b.StopTimer()
+}
+
+func BenchmarkGRPCSetInfoStreamLoopback(b *testing.B) {
+	loopbackAddr := "localhost:4443"
+	s := mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"})
+	benchmarkGRPCSetInfoStream(b, loopbackAddr, 1)
+	s.Stop()
+}
+
+func BenchmarkGRPCSetInfoStreamLoopback16x(b *testing.B) {
+	loopbackAddr := "localhost:4443"
+	s := mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"})
+	benchmarkGRPCSetInfoStream(b, loopbackAddr, 16)
+	s.Stop()
+}
+
+func BenchmarkGRPCSetInfoStreamRemote(b *testing.B) {
+	remoteAddr := os.Getenv("GRPC_REMOTE_ADDR")
+	benchmarkGRPCSetInfoStream(b, remoteAddr, 1)
+}
+
+func BenchmarkGRPCSetInfoStreamRemote16x(b *testing.B) {
+	remoteAddr := os.Getenv("GRPC_REMOTE_ADDR")
+	benchmarkGRPCSetInfoStream(b, remoteAddr, 16)
+}
+
+func benchmarkGRPCSetInfoAsyncStream(b *testing.B, addr string, parallelism int) {
+	config := &tls.Config{}
+	config.InsecureSkipVerify = true
+	// Set up a connection to the server.
+	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(credentials.NewTLS(config)))
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	client := NewInfoServerClient(conn)
+
+	// run grpc calls against it
+	b.StartTimer()
+	var wg sync.WaitGroup
+	var successes uint64 = 0
+	ctx := context.Background()
+	for j := 0; j < parallelism; j++ {
+		go func(j int) {
+			call, err := client.SetInfoStream(ctx)
+			if err != nil {
+				b.Fatal(err)
+			}
 			done := make(chan struct{})
 			go func() {
 				var t uint64 = 0
@@ -136,26 +215,26 @@ func benchmarkGRPCSetInfoStream(b *testing.B, addr string, parallelism int) {
 	b.StopTimer()
 }
 
-func BenchmarkGRPCSetInfoStreamLoopback(b *testing.B) {
+func BenchmarkGRPCSetInfoAsyncStreamLoopback(b *testing.B) {
 	loopbackAddr := "localhost:4443"
 	s := mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"})
-	benchmarkGRPCSetInfoStream(b, loopbackAddr, 1)
+	benchmarkGRPCSetInfoAsyncStream(b, loopbackAddr, 1)
 	s.Stop()
 }
 
-func BenchmarkGRPCSetInfoStreamLoopback16x(b *testing.B) {
+func BenchmarkGRPCSetInfoAsyncStreamLoopback16x(b *testing.B) {
 	loopbackAddr := "localhost:4443"
 	s := mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"})
-	benchmarkGRPCSetInfoStream(b, loopbackAddr, 16)
+	benchmarkGRPCSetInfoAsyncStream(b, loopbackAddr, 16)
 	s.Stop()
 }
 
-func BenchmarkGRPCSetInfoStreamRemote(b *testing.B) {
+func BenchmarkGRPCSetInfoAsyncStreamRemote(b *testing.B) {
 	remoteAddr := os.Getenv("GRPC_REMOTE_ADDR")
-	benchmarkGRPCSetInfoStream(b, remoteAddr, 1)
+	benchmarkGRPCSetInfoAsyncStream(b, remoteAddr, 1)
 }
 
-func BenchmarkGRPCSetInfoStreamRemote16x(b *testing.B) {
+func BenchmarkGRPCSetInfoAsyncStreamRemote16x(b *testing.B) {
 	remoteAddr := os.Getenv("GRPC_REMOTE_ADDR")
-	benchmarkGRPCSetInfoStream(b, remoteAddr, 16)
+	benchmarkGRPCSetInfoAsyncStream(b, remoteAddr, 16)
 }
