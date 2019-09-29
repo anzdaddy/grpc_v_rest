@@ -47,7 +47,7 @@ func loopbackGRPC(loopbackAddr string) CloserFunc {
 	return mainGRPC(loopbackAddr, loopbackTestCreds()).Stop
 }
 
-func loopbackReST(loopbackAddr string) CloserFunc {
+func loopbackREST(loopbackAddr string) CloserFunc {
 	server := mainREST(loopbackAddr, loopbackTestCreds())
 	return func() {
 		if err := server.Close(); err != nil {

@@ -57,7 +57,7 @@ func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
 }
 
 var benchmarkRESTSetInfoLoopback = loopbackBenchmark(
-	restPortBase, loopbackReST, benchmarkRESTSetInfo)
+	restPortBase, loopbackREST, benchmarkRESTSetInfo)
 
 func BenchmarkRESTSetInfoLoopback(b *testing.B) {
 	benchmarkRESTSetInfoLoopback(b, 0, 1)
