@@ -43,9 +43,9 @@ GRPC_REMOTE_ADDR=${SRV}:4443 REST_REMOTE_ADDR=${SRV}:4444 go test -bench Remote 
 
 The following results track four techniques for implementing a request/response flow.
 
-1. **gRPC** uses a single-in/single-out gRPC call per request.
-2. **gRPC streaming** uses a single stream-in/stream-out gRPC call for every request.
-3. **gRPC async streaming** use a single stream-in/stream-out gRPC call, as above. Requests are sent over one goroutine without waiting for responses. Responses are harvested independently by a separate goroutine.
+1. **gRPC** a unary gRPC call per request.
+2. **gRPC streaming** uses a single bidirectional streaming gRPC call for many requests.
+3. **gRPC async streaming** uses a single bidirectional streaming gRPC call, as above. However, requests are sent over one goroutine without waiting for responses while responses are harvested independently by a separate goroutine.
 4. **REST** calls a RESTful API over HTTP/2 once per request.
 
 For each technique, we run the client on a single-goroutine (1x) and on 16 goroutines (16x).
