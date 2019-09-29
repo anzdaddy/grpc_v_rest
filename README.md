@@ -57,29 +57,21 @@ $ go test -bench Loopback
 goos: darwin
 goarch: amd64
 pkg: github.com/anzdaddy/grpc_v_rest
-BenchmarkGRPCSetInfoLoopback-8                 	   10000	    193134 ns/op
-BenchmarkGRPCSetInfoLoopback16x-8              	   50000	     24905 ns/op
-BenchmarkGRPCSetInfoStreamLoopback-8           	ERRO[0004] rpc error: code = Canceled desc = context canceled
-   10000	    120618 ns/op
-BenchmarkGRPCSetInfoStreamLoopback16x-8        	ERRO[0006] rpc error: code = Canceled desc = context canceled
-  100000	     12562 ns/op
-BenchmarkGRPCSetInfoAsyncStreamLoopback-8      	ERRO[0007] rpc error: code = Canceled desc = context canceled
-ERRO[0007] rpc error: code = Canceled desc = context canceled
-  200000	      5168 ns/op
-BenchmarkGRPCSetInfoAsyncStreamLoopback16x-8   	ERRO[0008] rpc error: code = Canceled desc = context canceled
-ERRO[0008] rpc error: code = Canceled desc = context canceled
-ERRO[0008] rpc error: code = Canceled desc = context canceled
-  500000	      2920 ns/op
-ERRO[0010] rpc error: code = Canceled desc = context canceled
-BenchmarkRESTSetInfoLoopback-8                 	   10000	    176539 ns/op
-BenchmarkRESTSetInfoLoopback16x-8              	   20000	     54953 ns/op
+
+BenchmarkGRPCSetInfoLoopback-8                 	    6639	    192264 ns/op
+BenchmarkGRPCSetInfoLoopback16x-8              	   47606	     25219 ns/op
+BenchmarkGRPCSetInfoStreamLoopback-8           	   11233	    117535 ns/op
+BenchmarkGRPCSetInfoStreamLoopback16x-8        	  104283	     11927 ns/op
+BenchmarkGRPCSetInfoAsyncStreamLoopback-8      	  272757	      4512 ns/op
+BenchmarkGRPCSetInfoAsyncStreamLoopback16x-8   	  466434	      2368 ns/op
+BenchmarkRESTSetInfoLoopback-8                 	    7263	    165881 ns/op
+BenchmarkRESTSetInfoLoopback16x-8              	   20418	     53462 ns/op
+
 PASS
 ok  	github.com/anzdaddy/grpc_v_rest	14.649s
 ```
 
-¹Something's NQR with StreamLoopback scenarios. Further investigation is needed.
-
-![](https://chart.googleapis.com/chart?cht=bvg&chs=300x300&chdl=gRPC|REST&chd=t:193.134,24.905|176.539,54.953&chds=a&chxt=x,y&chxl=0:|1x|16x&chco=A03333,4D89F9&chxs=1N**+µs&chma=10,10,10,10&chbh=30,5,20 "gRPC vs REST loopback")
+![](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:192.264,25.219|117.535,11.927|4.512,2.368|165.881,53.462&chds=a&chxt=x,y&chxl=0:|1x|16x&chco=A03333,C09999,FF6600,4D89F9&chxs=1N**+µs&chma=10,10,10,10&chbh=30,5,20 "gRPC vs REST loopback")
 
 ### Local (“Remote” to localhost)
 
