@@ -16,7 +16,9 @@ func mainREST(addr string, creds tlsCreds) *http.Server {
 	server := &http.Server{Addr: addr, Handler: r}
 	go func() {
 		if err := server.ListenAndServeTLS(creds.certFile, creds.keyFile); err != nil {
-			logrus.Fatal(err)
+			if err != http.ErrServerClosed {
+				logrus.Fatal(err)
+			}
 		}
 	}()
 	return server
