@@ -7,6 +7,7 @@ import (
 	"os"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -65,17 +66,17 @@ func benchmarkGRPCSetInfoStream(b *testing.B, addr string, parallelism int) {
 }
 
 func BenchmarkGRPCSetInfoStreamLoopback(b *testing.B) {
-	loopbackAddr := "localhost:4443"
-	s := mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"})
+	loopbackAddr := loopbackTestAddress(grpcStreamPortBase + 0)
+	defer mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"}).Stop()
+	time.Sleep(time.Millisecond)
 	benchmarkGRPCSetInfoStream(b, loopbackAddr, 1)
-	s.Stop()
 }
 
 func BenchmarkGRPCSetInfoStreamLoopback16x(b *testing.B) {
-	loopbackAddr := "localhost:4443"
-	s := mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"})
+	loopbackAddr := loopbackTestAddress(grpcStreamPortBase + 1)
+	defer mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"}).Stop()
+	time.Sleep(time.Millisecond)
 	benchmarkGRPCSetInfoStream(b, loopbackAddr, 16)
-	s.Stop()
 }
 
 func BenchmarkGRPCSetInfoStreamRemote(b *testing.B) {
