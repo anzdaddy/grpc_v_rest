@@ -8,17 +8,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-func benchmarkGRPCSetInfo(b *testing.B, addr string, parallelism int) {
-	conn, client, err := grpcSetInfoClient(addr)
-	if err != nil {
-		b.Fatalf("failed to connect: %v", err)
-	}
-	defer conn.Close()
-
-	// run grpc calls against it
-	b.StartTimer()
-	if err := inParallel(context.Background(), parallelism, func(ctx context.Context, index int) error {
-		for i := index; i < b.N; i += parallelism {
+var benchmarkGRPCSetInfo = benchmarkGRPC(
+	func(ctx context.Context, client InfoServerClient, work <-chan int) error {
+		for range work {
 			reply, err := client.SetInfo(ctx, &InfoRequest{Name: "test", Age: 1, Height: 1})
 			if err != nil {
 				return errors.WithStack(err)
@@ -28,11 +20,8 @@ func benchmarkGRPCSetInfo(b *testing.B, addr string, parallelism int) {
 			}
 		}
 		return nil
-	}); err != nil {
-		b.Fatal(err)
-	}
-	b.StopTimer()
-}
+	},
+)
 
 var benchmarkGRPCSetInfoLoopback = loopbackBenchmark(
 	grpcPortBase, loopbackGRPC, benchmarkGRPCSetInfo)

@@ -3,14 +3,25 @@ package main
 import (
 	"context"
 	"sync"
+	"sync/atomic"
+	"testing"
 )
 
-func inParallel(ctx context.Context, parallelism int, work func(ctx context.Context, index int) error) error {
+func parallelBenchmark(
+	b *testing.B,
+	parallelism int,
+	worker func(ctx context.Context, work <-chan int) error,
+) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	errch := make(chan error, parallelism)
 	panicch := make(chan interface{}, parallelism)
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+
+	var totalSuccesses uint64 = 0
+
 	var wg sync.WaitGroup
+	b.StartTimer()
 	for index := 0; index < parallelism; index++ {
 		wg.Add(1)
 		go func(index int) {
@@ -20,21 +31,35 @@ func inParallel(ctx context.Context, parallelism int, work func(ctx context.Cont
 					panicch <- r
 				}
 			}()
-			if err := work(ctx, index); err != nil {
+			successes := 0
+			work := make(chan int)
+			go func() {
+				for i := index; i < b.N; i += parallelism {
+					work <- i
+					successes++
+				}
+				close(work)
+			}()
+			err := worker(ctx, work)
+			if err != nil {
 				errch <- err
 				return
 			}
+			atomic.AddUint64(&totalSuccesses, uint64(successes))
 		}(index)
 	}
 	wg.Wait()
+	b.StopTimer()
 	select {
 	case err := <-errch:
 		cancel()
-		return err
+		b.Fatal(err)
 	case r := <-panicch:
 		cancel()
 		panic(r)
 	default:
-		return nil
+		if totalSuccesses != uint64(b.N) {
+			b.Fatalf("successes (%d) != b.N (%d)", totalSuccesses, b.N)
+		}
 	}
 }

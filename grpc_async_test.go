@@ -3,23 +3,13 @@ package main
 import (
 	"context"
 	"os"
-	"sync/atomic"
 	"testing"
 
 	"github.com/pkg/errors"
 )
 
-func benchmarkGRPCSetInfoAsyncStream(b *testing.B, addr string, parallelism int) {
-	conn, client, err := grpcSetInfoClient(addr)
-	if err != nil {
-		b.Fatalf("failed to connect: %v", err)
-	}
-	defer conn.Close()
-
-	// run grpc calls against it
-	b.StartTimer()
-	var successes uint64 = 0
-	if err := inParallel(context.Background(), parallelism, func(ctx context.Context, index int) (err error) {
+var benchmarkGRPCSetInfoAsyncStream = benchmarkGRPC(
+	func(ctx context.Context, client InfoServerClient, work <-chan int) error {
 		call, err := client.SetInfoStream(ctx)
 		if err != nil {
 			return err
@@ -30,10 +20,10 @@ func benchmarkGRPCSetInfoAsyncStream(b *testing.B, addr string, parallelism int)
 				err = err2
 			}
 		}()
+		sent := make(chan struct{}, 1000)
 		go func() {
 			defer close(done)
-			var t uint64 = 0
-			for i := index; i < b.N; i += parallelism {
+			for range sent {
 				reply, err := call.Recv()
 				if err != nil {
 					done <- err
@@ -43,27 +33,21 @@ func benchmarkGRPCSetInfoAsyncStream(b *testing.B, addr string, parallelism int)
 					done <- errors.Errorf("call failed")
 					return
 				}
-				t++
 			}
-			atomic.AddUint64(&successes, t)
 		}()
-		for i := index; i < b.N; i += parallelism {
+		for range work {
 			if err := call.Send(&InfoRequest{Name: "test", Age: 1, Height: 1}); err != nil {
 				return err
 			}
+			sent <- struct{}{}
 		}
+		close(sent)
 		if err := call.CloseSend(); err != nil {
 			return err
 		}
 		return nil
-	}); err != nil {
-		b.Fatal(err)
-	}
-	if atomic.LoadUint64(&successes) != uint64(b.N) {
-		b.Fatalf("successes (%d) != b.N (%d)", successes, b.N)
-	}
-	b.StopTimer()
-}
+	},
+)
 
 var benchmarkGRPCSetInfoAsyncStreamLoopback = loopbackBenchmark(
 	grpcAsyncStreamPortBase, loopbackGRPC, benchmarkGRPCSetInfoAsyncStream)
