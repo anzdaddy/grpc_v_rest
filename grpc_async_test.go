@@ -2,27 +2,19 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
-	"log"
 	"os"
 	"sync/atomic"
 	"testing"
 
 	"github.com/pkg/errors"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 func benchmarkGRPCSetInfoAsyncStream(b *testing.B, addr string, parallelism int) {
-	config := &tls.Config{}
-	config.InsecureSkipVerify = true
-	// Set up a connection to the server.
-	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(credentials.NewTLS(config)))
+	conn, client, err := grpcSetInfoClient(addr)
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		b.Fatalf("failed to connect: %v", err)
 	}
 	defer conn.Close()
-	client := NewInfoServerClient(conn)
 
 	// run grpc calls against it
 	b.StartTimer()
@@ -56,11 +48,7 @@ func benchmarkGRPCSetInfoAsyncStream(b *testing.B, addr string, parallelism int)
 			atomic.AddUint64(&successes, t)
 		}()
 		for i := index; i < b.N; i += parallelism {
-			if err := call.Send(&InfoRequest{
-				Name:   "test",
-				Age:    1,
-				Height: 1,
-			}); err != nil {
+			if err := call.Send(&InfoRequest{Name: "test", Age: 1, Height: 1}); err != nil {
 				return err
 			}
 		}

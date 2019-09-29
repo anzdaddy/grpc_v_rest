@@ -1,9 +1,13 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"testing"
 	"time"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -44,4 +48,15 @@ func loopbackGRPC(loopbackAddr string) (cancel func()) {
 func loopbackReST(loopbackAddr string) (cancel func()) {
 	server := mainREST(loopbackAddr, loopbackTestCreds())
 	return func() { server.Close() }
+}
+
+func grpcSetInfoClient(addr string) (conn *grpc.ClientConn, client InfoServerClient, err error) {
+	config := &tls.Config{}
+	config.InsecureSkipVerify = true
+	// Set up a connection to the server.
+	conn, err = grpc.Dial(addr, grpc.WithTransportCredentials(credentials.NewTLS(config)))
+	if err != nil {
+		return nil, nil, err
+	}
+	return conn, NewInfoServerClient(conn), nil
 }

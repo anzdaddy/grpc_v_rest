@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -14,7 +15,7 @@ import (
 )
 
 func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
-	url := "https://" + addr + "/info"
+	url := fmt.Sprintf("https://%s/info", addr)
 	b.StartTimer()
 	if err := inParallel(context.Background(), parallelism, func(ctx context.Context, j int) error {
 		client := &http.Client{
@@ -25,11 +26,7 @@ func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
 			},
 		}
 		for i := j; i < b.N; i += parallelism {
-			reqData, err := json.Marshal(apiInput{
-				Name:   "test",
-				Age:    1,
-				Height: 1,
-			})
+			reqData, err := json.Marshal(apiInput{Name: "test", Age: 1, Height: 1})
 			if err != nil {
 				return err
 			}
