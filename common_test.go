@@ -34,8 +34,6 @@ func loopbackBenchmark(
 ) func(b *testing.B, portOffset, parallelism int) {
 	return func(b *testing.B, portOffset, parallelism int) {
 		loopbackAddr := fmt.Sprintf("localhost:%d", portBase+portOffset)
-		logrus.SetReportCaller(true)
-		defer logrus.SetReportCaller(false)
 		defer startServer(loopbackAddr)()
 		time.Sleep(10 * time.Millisecond)
 		benchmark(b, loopbackAddr, parallelism)
