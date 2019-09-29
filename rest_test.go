@@ -45,6 +45,9 @@ func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
 				}
 				return errors.Wrap(err, "Error parsing JSON")
 			}
+			if err := resp.Body.Close(); err != nil {
+				logrus.Error(errors.WithStack(err))
+			}
 			if !r.Success {
 				return errors.New("call failed")
 			}
