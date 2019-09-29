@@ -13,8 +13,8 @@ type tlsCreds struct {
 
 func main() {
 	var flagCreds tlsCreds
-	flag.StringVar(&flagCreds.certFile, "cert", "test.crt", "TLS Cert File")
-	flag.StringVar(&flagCreds.keyFile, "key", "test.key", "TLS Key File")
+	flag.StringVar(&flagCreds.certFile, "cert", "cert.pem", "TLS Cert File")
+	flag.StringVar(&flagCreds.keyFile, "key", "key.pem", "TLS Key File")
 	flag.Parse()
 	grpcAddr := ":4443"
 	mainGRPC(grpcAddr, flagCreds)
