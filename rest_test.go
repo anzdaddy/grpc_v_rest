@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/pkg/errors"
 )
@@ -67,14 +66,14 @@ func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
 func BenchmarkRESTSetInfoLoopback(b *testing.B) {
 	loopbackAddr := loopbackTestAddress(restPortBase + 0)
 	defer mainREST(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"}).Close()
-	time.Sleep(time.Millisecond)
+	giveLoopbackServerTimeToStart()
 	benchmarkRESTSetInfo(b, loopbackAddr, 1)
 }
 
 func BenchmarkRESTSetInfoLoopback16x(b *testing.B) {
 	loopbackAddr := loopbackTestAddress(restPortBase + 1)
 	defer mainREST(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"}).Close()
-	time.Sleep(time.Millisecond)
+	giveLoopbackServerTimeToStart()
 	benchmarkRESTSetInfo(b, loopbackAddr, 16)
 }
 
