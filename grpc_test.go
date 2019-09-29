@@ -16,7 +16,7 @@ var benchmarkGRPCSetInfo = benchmarkGRPC(
 				return errors.WithStack(err)
 			}
 			if !reply.Success {
-				return errors.Errorf("call failed")
+				return errors.New("call failed")
 			}
 		}
 		return nil

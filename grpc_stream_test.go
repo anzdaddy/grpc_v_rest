@@ -13,21 +13,21 @@ var benchmarkGRPCSetInfoStream = benchmarkGRPC(
 	func(ctx context.Context, client InfoServerClient, work func() bool) error {
 		call, err := client.SetInfoStream(ctx)
 		if err != nil {
-			return err
+			return errors.WithStack(err)
 		}
 		for work() {
 			if err := call.Send(&InfoRequest{Name: "test", Age: 1, Height: 1}); err != nil {
-				return err
+				return errors.WithStack(err)
 			}
 			reply, err := call.Recv()
 			if err != nil {
-				return err
+				return errors.WithStack(err)
 			}
 			if !reply.Success {
 				if err := call.CloseSend(); err != nil {
-					logrus.Error(err)
+					logrus.Error(errors.WithStack(err))
 				}
-				return errors.Errorf("call failed")
+				return errors.New("call failed")
 			}
 		}
 		return call.CloseSend()

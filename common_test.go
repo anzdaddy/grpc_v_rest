@@ -61,7 +61,7 @@ func grpcSetInfoClient(addr string) (conn *grpc.ClientConn, client InfoServerCli
 	// Set up a connection to the server.
 	conn, err = grpc.Dial(addr, grpc.WithTransportCredentials(credentials.NewTLS(config)))
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errors.WithStack(err)
 	}
 	return conn, NewInfoServerClient(conn), nil
 }
