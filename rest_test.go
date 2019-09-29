@@ -14,7 +14,7 @@ import (
 )
 
 func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
-	addr = "https://" + addr + "/info"
+	url := "https://" + addr + "/info"
 	b.StartTimer()
 	if err := inParallel(context.Background(), parallelism, func(ctx context.Context, j int) error {
 		client := &http.Client{
@@ -33,7 +33,7 @@ func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
 			if err != nil {
 				return err
 			}
-			req, err := http.NewRequestWithContext(ctx, "POST", addr, bytes.NewBuffer(reqData))
+			req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqData))
 			if err != nil {
 				return err
 			}
