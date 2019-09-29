@@ -9,8 +9,8 @@ import (
 )
 
 var benchmarkGRPCSetInfo = benchmarkGRPC(
-	func(ctx context.Context, client InfoServerClient, work <-chan int) error {
-		for range work {
+	func(ctx context.Context, client InfoServerClient, work func() bool) error {
+		for work() {
 			reply, err := client.SetInfo(ctx, &InfoRequest{Name: "test", Age: 1, Height: 1})
 			if err != nil {
 				return errors.WithStack(err)

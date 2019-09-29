@@ -10,7 +10,7 @@ import (
 func parallelBenchmark(
 	b *testing.B,
 	parallelism int,
-	worker func(ctx context.Context, work <-chan int) error,
+	worker func(ctx context.Context, work func() bool) error,
 ) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -32,14 +32,15 @@ func parallelBenchmark(
 				}
 			}()
 			successes := 0
-			work := make(chan int)
-			go func() {
-				for i := index; i < b.N; i += parallelism {
-					work <- i
+			i := index
+			work := func() bool {
+				if i < b.N {
 					successes++
+					i += parallelism
+					return true
 				}
-				close(work)
-			}()
+				return false
+			}
 			err := worker(ctx, work)
 			if err != nil {
 				errch <- err

@@ -9,7 +9,7 @@ import (
 )
 
 var benchmarkGRPCSetInfoAsyncStream = benchmarkGRPC(
-	func(ctx context.Context, client InfoServerClient, work <-chan int) error {
+	func(ctx context.Context, client InfoServerClient, work func() bool) error {
 		call, err := client.SetInfoStream(ctx)
 		if err != nil {
 			return err
@@ -35,7 +35,7 @@ var benchmarkGRPCSetInfoAsyncStream = benchmarkGRPC(
 				}
 			}
 		}()
-		for range work {
+		for work() {
 			if err := call.Send(&InfoRequest{Name: "test", Age: 1, Height: 1}); err != nil {
 				return err
 			}

@@ -16,7 +16,7 @@ import (
 
 func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
 	url := fmt.Sprintf("https://%s/info", addr)
-	parallelBenchmark(b, parallelism, func(ctx context.Context, work <-chan int) error {
+	parallelBenchmark(b, parallelism, func(ctx context.Context, work func() bool) error {
 		client := &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
@@ -24,7 +24,7 @@ func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
 				},
 			},
 		}
-		for range work {
+		for work() {
 			reqData, err := json.Marshal(apiInput{Name: "test", Age: 1, Height: 1})
 			if err != nil {
 				return errors.WithStack(err)

@@ -69,7 +69,7 @@ func grpcSetInfoClient(addr string) (conn *grpc.ClientConn, client InfoServerCli
 }
 
 func benchmarkGRPC(
-	worker func(ctx context.Context, client InfoServerClient, work <-chan int) error,
+	worker func(ctx context.Context, client InfoServerClient, work func() bool) error,
 ) func(b *testing.B, addr string, parallelism int) {
 	return func(b *testing.B, addr string, parallelism int) {
 		conn, client, err := grpcSetInfoClient(addr)
@@ -77,7 +77,7 @@ func benchmarkGRPC(
 			b.Fatalf("failed to connect: %v", err)
 		}
 		defer conn.Close()
-		parallelBenchmark(b, parallelism, func(ctx context.Context, work <-chan int) error {
+		parallelBenchmark(b, parallelism, func(ctx context.Context, work func() bool) error {
 			return worker(ctx, client, work)
 		})
 	}
