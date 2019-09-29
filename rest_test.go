@@ -65,16 +65,14 @@ func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
 
 func BenchmarkRESTSetInfoLoopback(b *testing.B) {
 	loopbackAddr := "localhost:4444"
-	s := mainREST(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"})
+	defer mainREST(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"}).Close()
 	benchmarkRESTSetInfo(b, loopbackAddr, 1)
-	s.Close()
 }
 
 func BenchmarkRESTSetInfoLoopback16x(b *testing.B) {
 	loopbackAddr := "localhost:4444"
-	s := mainREST(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"})
+	defer mainREST(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"}).Close()
 	benchmarkRESTSetInfo(b, loopbackAddr, 16)
-	s.Close()
 }
 
 func BenchmarkRESTSetInfoRemote(b *testing.B) {
