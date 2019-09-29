@@ -48,7 +48,8 @@ The following results track four techniques for implementing a request/response 
 3. **gRPC async streaming** uses a single bidirectional streaming gRPC call, as above. However, requests are sent over one goroutine without waiting for responses while responses are harvested independently by a separate goroutine.
 4. **REST** calls a RESTful API over HTTP/2 once per request.
 
-For each technique, we run the client on a single-goroutine (1x) and on 16 goroutines (16x).
+For each technique, we run the client on a single-goroutine (1x) and on 16
+goroutines (16x). The following outputs are as produced by `go test`, but with the benchmarks reordered to match the graphs.
 
 ### Loopback (in-process server)
 
@@ -57,16 +58,14 @@ $ go test -bench Loopback
 goos: darwin
 goarch: amd64
 pkg: github.com/anzdaddy/grpc_v_rest
-
 BenchmarkGRPCSetInfoLoopback-8                 	    6639	    192264 ns/op
-BenchmarkGRPCSetInfoLoopback16x-8              	   47606	     25219 ns/op
 BenchmarkGRPCSetInfoStreamLoopback-8           	   11233	    117535 ns/op
-BenchmarkGRPCSetInfoStreamLoopback16x-8        	  104283	     11927 ns/op
 BenchmarkGRPCSetInfoAsyncStreamLoopback-8      	  272757	      4512 ns/op
-BenchmarkGRPCSetInfoAsyncStreamLoopback16x-8   	  466434	      2368 ns/op
 BenchmarkRESTSetInfoLoopback-8                 	    7263	    165881 ns/op
+BenchmarkGRPCSetInfoLoopback16x-8              	   47606	     25219 ns/op
+BenchmarkGRPCSetInfoStreamLoopback16x-8        	  104283	     11927 ns/op
+BenchmarkGRPCSetInfoAsyncStreamLoopback16x-8   	  466434	      2368 ns/op
 BenchmarkRESTSetInfoLoopback16x-8              	   20418	     53462 ns/op
-
 PASS
 ok  	github.com/anzdaddy/grpc_v_rest	14.649s
 ```
@@ -81,12 +80,12 @@ goos: darwin
 goarch: amd64
 pkg: github.com/anzdaddy/grpc_v_rest
 BenchmarkGRPCSetInfoRemote-8                 	    5000	    271194 ns/op
-BenchmarkGRPCSetInfoRemote16x-8              	   50000	     31229 ns/op
 BenchmarkGRPCSetInfoStreamRemote-8           	   10000	    182109 ns/op
-BenchmarkGRPCSetInfoStreamRemote16x-8        	  100000	     16459 ns/op
 BenchmarkGRPCSetInfoAsyncStreamRemote-8      	  200000	      5543 ns/op
-BenchmarkGRPCSetInfoAsyncStreamRemote16x-8   	  500000	      3643 ns/op
 BenchmarkRESTSetInfoRemote-8                 	   10000	    235802 ns/op
+BenchmarkGRPCSetInfoRemote16x-8              	   50000	     31229 ns/op
+BenchmarkGRPCSetInfoStreamRemote16x-8        	  100000	     16459 ns/op
+BenchmarkGRPCSetInfoAsyncStreamRemote16x-8   	  500000	      3643 ns/op
 BenchmarkRESTSetInfoRemote16x-8              	   20000	     68973 ns/op
 PASS
 ok  	github.com/anzdaddy/grpc_v_rest	17.719s
@@ -104,12 +103,12 @@ goos: darwin
 goarch: amd64
 pkg: github.com/anzdaddy/grpc_v_rest
 BenchmarkGRPCSetInfoRemote-4                          300       3849929 ns/op
-BenchmarkGRPCSetInfoRemote16x-4                      5000        270626 ns/op
 BenchmarkGRPCSetInfoStreamRemote-4                    500       3599877 ns/op
-BenchmarkGRPCSetInfoStreamRemote16x-4               10000        244286 ns/op
 BenchmarkGRPCSetInfoAsyncStreamRemote-4            500000          5234 ns/op
-BenchmarkGRPCSetInfoAsyncStreamRemote16x-4         500000          3019 ns/op
 BenchmarkRESTSetInfoRemote-4                          300       3580039 ns/op
+BenchmarkGRPCSetInfoRemote16x-4                      5000        270626 ns/op
+BenchmarkGRPCSetInfoStreamRemote16x-4               10000        244286 ns/op
+BenchmarkGRPCSetInfoAsyncStreamRemote16x-4         500000          3019 ns/op
 BenchmarkRESTSetInfoRemote16x-4                      3000        346382 ns/op
 PASS
 ok      github.com/anzdaddy/grpc_v_rest    16.470s
