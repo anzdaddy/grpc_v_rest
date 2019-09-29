@@ -11,17 +11,11 @@ type tlsCreds struct {
 	certFile, keyFile string
 }
 
-var (
-	flagCreds tlsCreds
-)
-
-func init() {
+func main() {
+	var flagCreds tlsCreds
 	flag.StringVar(&flagCreds.certFile, "cert", "test.crt", "TLS Cert File")
 	flag.StringVar(&flagCreds.keyFile, "key", "test.key", "TLS Key File")
 	flag.Parse()
-}
-
-func main() {
 	grpcAddr := ":4443"
 	mainGRPC(grpcAddr, flagCreds)
 	logrus.Infof("gRPC %s", grpcAddr)
