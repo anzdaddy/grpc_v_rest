@@ -15,6 +15,7 @@ require (
 	github.com/matoous/godox v0.0.0-20190911065817-5d6d842e92eb // indirect
 	github.com/mattn/go-isatty v0.0.9 // indirect
 	github.com/pelletier/go-toml v1.4.0 // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/securego/gosec v0.0.0-20190926225358-832d7bb398c2 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/afero v1.2.2 // indirect

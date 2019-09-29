@@ -2,18 +2,21 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"io"
 	"net/http"
 	"os"
 	"testing"
+
+	"github.com/pkg/errors"
 )
 
 func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
 	addr = "https://" + addr + "/info"
 	b.StartTimer()
-	inParallel(parallelism, func(j int) {
+	if err := inParallel(context.Background(), parallelism, func(ctx context.Context, j int) error {
 		client := &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
@@ -22,33 +25,41 @@ func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
 			},
 		}
 		for i := j; i < b.N; i += parallelism {
-			req, err := json.Marshal(apiInput{
+			reqData, err := json.Marshal(apiInput{
 				Name:   "test",
 				Age:    1,
 				Height: 1,
 			})
 			if err != nil {
-				b.Fatal(err)
+				return err
 			}
-			resp, err := client.Post(addr, "application/json", bytes.NewBuffer(req))
+			req, err := http.NewRequestWithContext(ctx, "POST", addr, bytes.NewBuffer(reqData))
 			if err != nil {
-				b.Fatal(err)
+				return err
+			}
+			req.Header.Set("Content-Type", "application/json")
+			resp, err := client.Do(req)
+			if err != nil {
+				return err
 			}
 			defer resp.Body.Close()
 			var r apiResponse
 			var buf bytes.Buffer
 			if _, err := io.Copy(&buf, resp.Body); err != nil {
-				b.Fatalf("Error copying resp.Body: %s", err)
+				return errors.Errorf("Error copying resp.Body: %s", err)
 			}
-			data := buf.String()
+			respData := buf.String()
 			if err := json.NewDecoder(&buf).Decode(&r); err != nil {
-				b.Fatalf("Error parsing JSON: %s\n%s", err, data)
+				return errors.Errorf("Error parsing JSON: %s\n%s", err, respData)
 			}
 			if !r.Success {
-				b.Fatalf("call failed\n%s", data)
+				return errors.Errorf("call failed\n%s", respData)
 			}
 		}
-	})
+		return nil
+	}); err != nil {
+		b.Fatal(err)
+	}
 	b.StopTimer()
 }
 
