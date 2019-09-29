@@ -6,12 +6,12 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"testing"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
@@ -27,29 +27,26 @@ func benchmarkRESTSetInfo(b *testing.B, addr string, parallelism int) {
 		for range work {
 			reqData, err := json.Marshal(apiInput{Name: "test", Age: 1, Height: 1})
 			if err != nil {
-				return err
+				return errors.WithStack(err)
 			}
 			req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(reqData))
 			if err != nil {
-				return err
+				return errors.WithStack(err)
 			}
 			req.Header.Set("Content-Type", "application/json")
 			resp, err := client.Do(req)
 			if err != nil {
-				return err
+				return errors.WithStack(err)
 			}
-			defer resp.Body.Close()
 			var r apiResponse
-			var buf bytes.Buffer
-			if _, err := io.Copy(&buf, resp.Body); err != nil {
-				return errors.Errorf("Error copying resp.Body: %s", err)
-			}
-			respData := buf.String()
-			if err := json.NewDecoder(&buf).Decode(&r); err != nil {
-				return errors.Errorf("Error parsing JSON: %s\n%s", err, respData)
+			if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
+				if err2 := resp.Body.Close(); err2 != nil {
+					logrus.Error(errors.WithStack(err2))
+				}
+				return errors.Wrap(err, "Error parsing JSON")
 			}
 			if !r.Success {
-				return errors.Errorf("call failed\n%s", respData)
+				return errors.New("call failed")
 			}
 		}
 		return nil

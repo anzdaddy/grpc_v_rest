@@ -23,7 +23,9 @@ var benchmarkGRPCSetInfoStream = benchmarkGRPC(
 				return err
 			}
 			if !reply.Success {
-				call.CloseSend()
+				if err := call.CloseSend(); err != nil {
+					logrus.Error(err)
+				}
 				return errors.Errorf("call failed")
 			}
 		}

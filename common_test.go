@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -51,7 +52,7 @@ func loopbackREST(loopbackAddr string) CloserFunc {
 	server := mainREST(loopbackAddr, loopbackTestCreds())
 	return func() {
 		if err := server.Close(); err != nil {
-			logrus.Error(err)
+			logrus.Error(errors.WithStack(err))
 		}
 	}
 }
