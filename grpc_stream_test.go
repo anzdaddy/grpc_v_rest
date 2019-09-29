@@ -64,26 +64,21 @@ func benchmarkGRPCSetInfoStream(b *testing.B, addr string, parallelism int) {
 	b.StopTimer()
 }
 
+var benchmarkGRPCSetInfoStreamLoopback = loopbackBenchmark(
+	grpcStreamPortBase, loopbackGRPC, benchmarkGRPCSetInfoStream)
+
 func BenchmarkGRPCSetInfoStreamLoopback(b *testing.B) {
-	loopbackAddr := loopbackTestAddress(grpcStreamPortBase + 0)
-	defer mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"}).Stop()
-	giveLoopbackServerTimeToStart()
-	benchmarkGRPCSetInfoStream(b, loopbackAddr, 1)
+	benchmarkGRPCSetInfoStreamLoopback(b, 0, 1)
 }
 
 func BenchmarkGRPCSetInfoStreamLoopback16x(b *testing.B) {
-	loopbackAddr := loopbackTestAddress(grpcStreamPortBase + 1)
-	defer mainGRPC(loopbackAddr, tlsCreds{certFile: "cert.pem", keyFile: "key.pem"}).Stop()
-	giveLoopbackServerTimeToStart()
-	benchmarkGRPCSetInfoStream(b, loopbackAddr, 16)
+	benchmarkGRPCSetInfoStreamLoopback(b, 1, 16)
 }
 
 func BenchmarkGRPCSetInfoStreamRemote(b *testing.B) {
-	remoteAddr := os.Getenv("GRPC_REMOTE_ADDR")
-	benchmarkGRPCSetInfoStream(b, remoteAddr, 1)
+	benchmarkGRPCSetInfoStream(b, os.Getenv("GRPC_REMOTE_ADDR"), 1)
 }
 
 func BenchmarkGRPCSetInfoStreamRemote16x(b *testing.B) {
-	remoteAddr := os.Getenv("GRPC_REMOTE_ADDR")
-	benchmarkGRPCSetInfoStream(b, remoteAddr, 16)
+	benchmarkGRPCSetInfoStream(b, os.Getenv("GRPC_REMOTE_ADDR"), 16)
 }
