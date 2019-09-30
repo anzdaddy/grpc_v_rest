@@ -50,8 +50,8 @@ The following results track four techniques for implementing a request/response 
 3. **gRPC (async stream)** uses a single bidirectional streaming gRPC call, as above. However, requests are sent over one goroutine without waiting for responses while responses are harvested independently by a separate goroutine.
 4. **REST** calls a RESTful API over HTTP/2 once per request.
 
-For each technique, we run the client on a single-goroutine (1×) and on 16
-goroutines (16×). The following outputs are as produced by `go test`, but with the benchmarks reordered to match the graphs.
+For each technique, we run the client on a single-goroutine (1x) and on 16
+goroutines (16x). The following outputs are as produced by `go test`, but with the benchmarks reordered to match the graphs.
 
 ### Loopback (in-process server)
 
