@@ -1,8 +1,8 @@
 # GRPC versus REST+HTTP/2
 
-### Loopback test:
-
 ![](https://github.com/anzdaddy/grpc_v_rest/workflows/Go/badge.svg)
+
+### Loopback test:
 
 ```bash
 go test -bench Loopback
