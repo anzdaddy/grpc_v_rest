@@ -2,6 +2,8 @@
 
 ### Loopback test:
 
+![](https://github.com/anzdaddy/grpc_v_rest/workflows/Go/badge.svg)
+
 ```bash
 go test -bench Loopback
 ```
