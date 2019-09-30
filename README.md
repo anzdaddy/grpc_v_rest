@@ -47,7 +47,7 @@ The following results track four techniques for implementing a request/response 
 
 1. **gRPC** a unary gRPC call per request.
 2. **gRPC (stream)** uses a single bidirectional streaming gRPC call for many requests.
-3. **gRPC (async+stream)** uses a single bidirectional streaming gRPC call, as above. However, requests are sent over one goroutine without waiting for responses while responses are harvested independently by a separate goroutine.
+3. **gRPC (async stream)** uses a single bidirectional streaming gRPC call, as above. However, requests are sent over one goroutine without waiting for responses while responses are harvested independently by a separate goroutine.
 4. **REST** calls a RESTful API over HTTP/2 once per request.
 
 For each technique, we run the client on a single-goroutine (1x) and on 16
