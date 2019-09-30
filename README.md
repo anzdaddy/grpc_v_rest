@@ -72,7 +72,7 @@ PASS
 ok  	github.com/anzdaddy/grpc_v_rest	14.649s
 ```
 
-![](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:192.264,25.219|117.535,11.927|4.512,2.368|165.881,53.462&chds=a&chxt=x,y&chxl=0:|1x|16x&chco=A03333,C09999,FF6600,4D89F9&chxs=1N**+µs&chma=10,10,10,10&chbh=30,5,20 "gRPC vs REST loopback")
+![Loopback results graph](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:192.264,25.219|117.535,11.927|4.512,2.368|165.881,53.462&chds=a&chxt=x,y&chxl=0:|1x|16x&chco=A03333,C09999,FF6600,4D89F9&chxs=1N**+µs&chma=10,10,10,10&chbh=30,5,20 "gRPC vs REST loopback")
 
 ### Local (“Remote” to localhost)
 
@@ -93,9 +93,7 @@ PASS
 ok  	github.com/anzdaddy/grpc_v_rest	17.719s
 ```
 
-²They're basically neck and neck. Different runs yield different winners.
-
-![](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:271.194,31.229|182.109,16.459|5.543,3.643|235.802,68.973&chds=a&chxt=x,y&chxl=0:|1x|16x&chco=A03333,C09999,FF6600,4D89F9&chxs=1N**+µs&chma=10,10,10,10&chbh=30,5,20 "gRPC vs REST loopback")
+![Local results graph](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:271.194,31.229|182.109,16.459|5.543,3.643|235.802,68.973&chds=a&chxt=x,y&chxl=0:|1x|16x&chco=A03333,C09999,FF6600,4D89F9&chxs=1N**+µs&chma=10,10,10,10&chbh=30,5,20 "gRPC vs REST loopback")
 
 ### Remote (One physical machine to another on a 1GB LAN)
 
@@ -106,19 +104,19 @@ goarch: amd64
 pkg: github.com/anzdaddy/grpc_v_rest
 BenchmarkGRPCSetInfoRemote-4                          300       3849929 ns/op
 BenchmarkGRPCSetInfoStreamRemote-4                    500       3599877 ns/op
-BenchmarkGRPCSetInfoAsyncStreamRemote-4            500000          5234 ns/op
+BenchmarkGRPCSetInfoAsyncStreamRemote-4            500000          5234 ns/op¹
 BenchmarkRESTSetInfoRemote-4                          300       3580039 ns/op
 BenchmarkGRPCSetInfoRemote16x-4                      5000        270626 ns/op
 BenchmarkGRPCSetInfoStreamRemote16x-4               10000        244286 ns/op
-BenchmarkGRPCSetInfoAsyncStreamRemote16x-4         500000          3019 ns/op
+BenchmarkGRPCSetInfoAsyncStreamRemote16x-4         500000          3019 ns/op¹
 BenchmarkRESTSetInfoRemote16x-4                      3000        346382 ns/op
 PASS
 ok      github.com/anzdaddy/grpc_v_rest    16.470s
 ```
 
-³Hmm, async streaming is even faster over the wire!
+¹Hmm, async streaming is even faster over the wire!
 
-![](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:3.849929,.270626|3.599877,.244286|.005234,.003019|3.580039,.346382&chds=a&chxt=x,y&chxl=0:|1x|16x&chco=A03333,C09999,FF6600,4D89F9&chma=10,10,10,10&chbh=30,5,20&chxs=1N**+ms "gRPC vs REST loopback")
+![Remote results graph](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:3.849929,.270626|3.599877,.244286|.005234,.003019|3.580039,.346382&chds=a&chxt=x,y&chxl=0:|1x|16x&chco=A03333,C09999,FF6600,4D89F9&chma=10,10,10,10&chbh=30,5,20&chxs=1N**+ms "gRPC vs REST loopback")
 
 ## Selected observations
 
