@@ -50,8 +50,8 @@ The following results track four techniques for implementing a request/response 
 3. **gRPC (async stream)** uses a single bidirectional streaming gRPC call, as above. However, requests are sent over one goroutine without waiting for responses while responses are harvested independently by a separate goroutine.
 4. **REST** calls a RESTful API over HTTP/2 once per request.
 
-For each technique, we run the client on a single-goroutine (1x) and on 16
-goroutines (16x). The following outputs are as produced by `go test`, but with the benchmarks reordered to match the graphs.
+For each technique, we run the client on a single-goroutine (1×) and on 16
+goroutines (16×). The following outputs are as produced by `go test`, but with the benchmarks reordered to match the graphs.
 
 ### Loopback (in-process server)
 
@@ -72,7 +72,7 @@ PASS
 ok  	github.com/anzdaddy/grpc_v_rest	14.649s
 ```
 
-![Loopback results graph](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:192.264,25.219|117.535,11.927|4.512,2.368|165.881,53.462&chds=a&chxt=x,y&chxl=0:|1x|16x&chco=A03333,C09999,FF6600,4D89F9&chxs=1N**+µs&chma=10,10,10,10&chbh=30,5,20 "gRPC vs REST loopback")
+![Loopback results graph](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:192.264,25.219|117.535,11.927|4.512,2.368|165.881,53.462&chds=a&chxt=x,y&chxl=0:|1×|16×&chco=A03333,C09999,FF6600,4D89F9&chxs=1N**+µs&chma=10,10,10,10&chbh=30,5,20 "gRPC vs REST loopback")
 
 ### Local (“Remote” to localhost)
 
@@ -93,7 +93,7 @@ PASS
 ok  	github.com/anzdaddy/grpc_v_rest	17.719s
 ```
 
-![Local results graph](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:271.194,31.229|182.109,16.459|5.543,3.643|235.802,68.973&chds=a&chxt=x,y&chxl=0:|1x|16x&chco=A03333,C09999,FF6600,4D89F9&chxs=1N**+µs&chma=10,10,10,10&chbh=30,5,20 "gRPC vs REST loopback")
+![Local results graph](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:271.194,31.229|182.109,16.459|5.543,3.643|235.802,68.973&chds=a&chxt=x,y&chxl=0:|1×|16×&chco=A03333,C09999,FF6600,4D89F9&chxs=1N**+µs&chma=10,10,10,10&chbh=30,5,20 "gRPC vs REST loopback")
 
 ### Remote (One physical machine to another on a 1GB LAN)
 
@@ -116,13 +116,13 @@ ok      github.com/anzdaddy/grpc_v_rest    16.470s
 
 ¹Hmm, async streaming is even faster over the wire!
 
-![Remote results graph](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:3.849929,.270626|3.599877,.244286|.005234,.003019|3.580039,.346382&chds=a&chxt=x,y&chxl=0:|1x|16x&chco=A03333,C09999,FF6600,4D89F9&chma=10,10,10,10&chbh=30,5,20&chxs=1N**+ms "gRPC vs REST loopback")
+![Remote results graph](https://chart.googleapis.com/chart?cht=bvg&chs=500x300&chdl=gRPC|gRPC+(stream)|gRPC+(async+stream)|REST&chd=t:3.849929,.270626|3.599877,.244286|.005234,.003019|3.580039,.346382&chds=a&chxt=x,y&chxl=0:|1×|16×&chco=A03333,C09999,FF6600,4D89F9&chma=10,10,10,10&chbh=30,5,20&chxs=1N**+ms "gRPC vs REST loopback")
 
 ## Selected observations
 
-1. gRPC scales much better than REST under 16x parallelised clients, clocking in at more than 2x faster.
+1. gRPC scales much better than REST under 16× parallelised clients, clocking in at more than 2× faster.
 2. On localhost, streaming gRPC request/response flows are much faster than non-streaming gRPC calls, but the difference largely goes away over a LAN.
-3. Async streaming offers vastly more throughput than any other technique. At 16x parallelism, it is 80x faster than the next best option.
+3. Async streaming offers vastly more throughput than any other technique. At 16× parallelism, it is 80× faster than the next best option.
 
 ## Machine specs
 
